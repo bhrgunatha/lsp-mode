@@ -22,6 +22,10 @@
 
 ;;  client for vls, the V language server
 
+;;  bhrgunatha 2024 Dec 18
+;;  Add support for the newer, active v-analyzer server
+;;  Fixed :activation-fn for v-ls too. In v-mode  (lsp-buffer-language) return (lower case) "v".
+
 ;;; Code:
 
 (require 'lsp-mode)
@@ -38,11 +42,26 @@ finding the executable with variable `exec-path'."
   :group 'lsp-v
   :type 'string)
 
+(defcustom lsp-v-analyzer-executable "v-analyzer"
+  "The v-analyzer executable to use.
+Leave as just the executable name to use the default behavior of
+finding the executable with variable `exec-path'."
+  :group 'lsp-v
+  :type 'string)
+
 (lsp-register-client
  (make-lsp-client
   :new-connection (lsp-stdio-connection (lambda () lsp-v-vls-executable))
-  :activation-fn (lsp-activate-on "V")
+  :activation-fn (lsp-activate-on "v")
   :server-id 'v-ls))
+
+(lsp-register-client
+ (make-lsp-client
+  :new-connection (lsp-stdio-connection (lambda () lsp-v-analyzer-executable))
+  :activation-fn (lsp-activate-on "v")
+  :priority -1
+  :server-id 'v-analyzer))
+
 
 (lsp-consistency-check lsp-v)
 
